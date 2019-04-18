@@ -18,13 +18,13 @@ func _check(err error) {
 type Sneaker struct {
 	ID string
 	Title string
+	Price string
 	ReleaseDate string
 	ImageUrl string
 	Provider string
 }
 
 var SneakerList []Sneaker
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func parseUrl(url string) []Sneaker {
 	fmt.Println("request: " + url)
@@ -36,21 +36,22 @@ func parseUrl(url string) []Sneaker {
 		date2 := item.Find(".clg-releases__date__month").Text()
 		date := date1 + "/" + date2 + "/2019"
 		item.Find(".sneaker-release-item").Each(func(i int, sneaker_block *goquery.Selection) {
+			id: = 1
 			title := sneaker_block.Find(".sneaker-release__title").Text()
 			price := strings.TrimSpace(sneaker_block.Find(".sneaker-release__option--price").Text())
 			image, _ := sneaker_block.Find(".sneaker-release__img-16x9 a img").Attr("src")
-			sneaker := Sneaker{"1", title, price, date, image}
+			sneaker := Sneaker{ id, title, price, date, image, "SOLECOLLECTOR" }
 			SneakerList = append(SneakerList, sneaker)
 		})
 	})
 	//for x, wong := range SneakerList {
 	//	fmt.Printf("%s : %s (%s) \n", x, wong.Title, wong.ReleaseDate)
 	//}
+
 	return SneakerList
 }
 
 func init() {
-
 	parseUrl("https://solecollector.com/sneaker-release-dates/all-release-dates")
 }
 
@@ -65,6 +66,9 @@ var sneakerType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"price": &graphql.Field{
 			Type: graphql.String,
 		},
 		"release_date": &graphql.Field{
