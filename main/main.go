@@ -3,10 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/graphql-go/graphql"
 	"net/http"
 	"strings"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/graphql-go/graphql"
 )
 
 func _check(err error) {
@@ -16,11 +17,11 @@ func _check(err error) {
 }
 
 type Sneaker struct {
-	ID string
-	Title string
-	Price string
-	ReleaseDate string
-	ImageUrl string
+	ID       int
+	Title    string
+	Price    string
+	Date     string
+	Image    string
 	Provider string
 }
 
@@ -36,17 +37,14 @@ func parseUrl(url string) []Sneaker {
 		date2 := item.Find(".clg-releases__date__month").Text()
 		date := date1 + "/" + date2 + "/2019"
 		item.Find(".sneaker-release-item").Each(func(i int, sneaker_block *goquery.Selection) {
-			id: = 1
+			id := i + 1
 			title := sneaker_block.Find(".sneaker-release__title").Text()
 			price := strings.TrimSpace(sneaker_block.Find(".sneaker-release__option--price").Text())
 			image, _ := sneaker_block.Find(".sneaker-release__img-16x9 a img").Attr("src")
-			sneaker := Sneaker{ id, title, price, date, image, "SOLECOLLECTOR" }
+			sneaker := Sneaker{id, title, price, date, image, "SOLECOLLECTOR"}
 			SneakerList = append(SneakerList, sneaker)
 		})
 	})
-	//for x, wong := range SneakerList {
-	//	fmt.Printf("%s : %s (%s) \n", x, wong.Title, wong.ReleaseDate)
-	//}
 
 	return SneakerList
 }
@@ -63,7 +61,7 @@ var sneakerType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Sneaker",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 		"title": &graphql.Field{
 			Type: graphql.String,
@@ -71,10 +69,10 @@ var sneakerType = graphql.NewObject(graphql.ObjectConfig{
 		"price": &graphql.Field{
 			Type: graphql.String,
 		},
-		"release_date": &graphql.Field{
+		"date": &graphql.Field{
 			Type: graphql.String,
 		},
-		"image_url": &graphql.Field{
+		"image": &graphql.Field{
 			Type: graphql.String,
 		},
 		"provider": &graphql.Field{
@@ -104,7 +102,7 @@ var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 
-				idQuery, isOK := params.Args["id"].(string)
+				idQuery, isOK := params.Args["id"].(int)
 				if isOK {
 					// Search for el with id
 					for _, sneaker := range SneakerList {
@@ -133,7 +131,7 @@ var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 
 // define schema, with our rootQuery and rootMutation
 var schema, _ = graphql.NewSchema(graphql.SchemaConfig{
-	Query:    rootQuery,
+	Query: rootQuery,
 	//Mutation: rootMutation,
 })
 
